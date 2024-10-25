@@ -1,0 +1,7 @@
+{
+    "rules": [
+        "age > 30 AND department = 'Sales'",
+        "salary > 50000 OR experience > 5"
+    ]
+}
+
