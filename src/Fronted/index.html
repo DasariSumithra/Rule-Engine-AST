@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rule Engine</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #0f0f0f; color: #fff; }
+        input, textarea, button { margin: 10px; padding: 10px; width: 95%; }
+        .output { background: #222; padding: 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Create Rule</h1>
+    <input type="text" id="ruleName" placeholder="Rule Name">
+    <textarea id="ruleCondition" placeholder="Rule (e.g., age > 18 && country === 'US')"></textarea>
+    <button id="createRuleButton">Create Rule</button>
+
+    <h1>Combine Rules</h1>
+    <input type="text" id="ruleToCombine" placeholder="Rule to Combine">
+    <input type="text" id="combineOperator" placeholder="Operator (AND/OR)">
+    <button id="combineRuleButton">Combine Rules</button>
+
+    <h1>Evaluate Rule</h1>
+    <textarea id="evaluateRule" placeholder="Enter rule (e.g., age > 18)"></textarea>
+    <input type="number" id="age" placeholder="Age">
+    <input type="text" id="country" placeholder="Country">
+    <button id="evaluateButton">Evaluate Rule</button>
+
+    <h2>Output</h2>
+    <div class="output" id="outputArea"></div>
+
+    <script type="module">
+        import * as ruleEngineService from '../services/ruleEngineService.js';
+
+        const outputArea = document.getElementById('outputArea');
+
+        // Create Rule
+        document.getElementById('createRuleButton').onclick = () => {
+            const ruleName = document.getElementById('ruleName').value;
+            const ruleCondition = document.getElementById('ruleCondition').value;
+
+            try {
+                const rule = ruleEngineService.createRuleInService(ruleName, ruleCondition);
+                outputArea.innerHTML += `<pre>${JSON.stringify(rule.ast, null, 2)}</pre>`;
+            } catch (error) {
+                outputArea.innerHTML += `<pre>Error: ${error.message}</pre>`;
+            }
+        };
+
+        // Combine Rules
+        document.getElementById('combineRuleButton').onclick = () => {
+            const ruleToCombine = document.getElementById('ruleToCombine').value;
+            const operator = document.getElementById('combineOperator').value;
+
+            try {
+                const combinedRules = ruleEngineService.combineRulesInService(ruleToCombine, 'salary > 50000', operator);
+                outputArea.innerHTML += `<pre>${JSON.stringify(combinedRules.combinedAST, null, 2)}</pre>`;
+            } catch (error) {
+                outputArea.innerHTML += `<pre>Error: ${error.message}</pre>`;
+            }
+        };
+
+        // Evaluate Rule
+        document.getElementById('evaluateButton').onclick = () => {
+            const rule = document.getElementById('evaluateRule').value;
+            const context = {
+                age: Number(document.getElementById('age').value),
+                country: document.getElementById('country').value
+            };
+
+            try {
+                const result = ruleEngineService.evaluateRuleInService(rule, context);
+                outputArea.innerHTML += `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+            } catch (error) {
+                outputArea.innerHTML += `<pre>Error evaluating rule: ${error.message}</pre>`;
+            }
+        };
+    </script>
+</body>
+</html>
